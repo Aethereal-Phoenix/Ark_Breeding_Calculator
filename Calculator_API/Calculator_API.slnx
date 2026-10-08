@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Calculator_API/Calculator_API.csproj" />
+  <Project Path="TestProject1/ArkCalculatorTests.csproj" />
+</Solution>
