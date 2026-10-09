@@ -9,10 +9,11 @@ public class CalculatorContext : DbContext
     // EF Core maps database records to these model classes
     public DbSet<Dinosaur> Dinosaurs { get; set; } = null!;
     public DbSet<Stats> Stats { get; set; } = null!;
-    public DbSet<Stats> MutatedStats { get; set; } = null!;
+    public DbSet<MutatedStats> MutatedStats { get; set; } = null!;
     public DbSet<BreedingLine> BreedingLines { get; set; } = null!;
 
     // Configures the SQLite database connection
+    #region OnConfiguring
     protected override void OnConfiguring(
         DbContextOptionsBuilder optionsBuilder)
     {
@@ -23,13 +24,14 @@ public class CalculatorContext : DbContext
 
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
+    #endregion
 
     // Configures the entity mappings for the database tables
-
-    // Configures the BreedingLine table mapping
+    #region OnModelCreating
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
     {
+        #region BreedingLine entity
         modelBuilder.Entity<BreedingLine>(entity =>
         {
             // Specifies the database table for this entity
@@ -39,18 +41,15 @@ public class CalculatorContext : DbContext
             entity.HasKey(e => e.BreedingLineId);
 
             // Maps entity properties to the database columns
-            entity.Property(e => e.BreedingLineId)
-                .HasColumnName("breeding_line_id");
+            entity.Property(e => e.BreedingLineId).HasMaxLength(36).HasColumnName("breeding_line_id");
+            
+            entity.Property(e => e.Species).HasMaxLength(25).HasColumnName("species_id");
 
-            entity.Property(e => e.Species)
-                .HasColumnName("species_id");
-
-            entity.Property(e => e.BreedingLineName)
-                .HasColumnName("breeding_line_name")
-                .HasMaxLength(50);
+            entity.Property(e => e.BreedingLineName).HasMaxLength(50).HasColumnName("breeding_line_name");
         });
+        #endregion
 
-        // Configures the Stats table mapping
+        #region Stats entity
         modelBuilder.Entity<Stats>(entity =>
         {
             // Specifies the database table for this entity
@@ -60,11 +59,13 @@ public class CalculatorContext : DbContext
             entity.HasKey(e => e.DinosaurId);
 
             // Maps entity properties to the database columns
-            entity.Property(e => e.DinosaurId).HasColumnName("dinosaur_id");
+            entity.Property(e => e.DinosaurId).HasMaxLength(36).HasColumnName("dinosaur_id");
 
             entity.Property(e => e.Health).HasColumnName("health");
 
-            entity.Property(e => e.Stamina).HasColumnName("oxygen");
+            entity.Property(e => e.Stamina).HasColumnName("stamina");
+
+            entity.Property(e => e.Oxygen).HasColumnName("oxygen");
 
             entity.Property(e => e.Food).HasColumnName("food");
 
@@ -75,10 +76,15 @@ public class CalculatorContext : DbContext
             entity.Property(e => e.Melee).HasColumnName("melee");
 
             entity.Property(e => e.MovementSpeed).HasColumnName("movement_speed");
-        });
 
+            // Sets up the FK relationship
+            entity.HasOne<Dinosaur>().WithOne(d => d.Stats).HasForeignKey<Stats>(s => s.DinosaurId).OnDelete(DeleteBehavior.Cascade);
+        });
+        #endregion
+
+        #region MutatedStats entity
         // Configures the Stats table mapping
-        modelBuilder.Entity<Stats>(entity =>
+        modelBuilder.Entity<MutatedStats>(entity =>
         {
             // Specifies the database table for this entity
             entity.ToTable("mutated_stats");
@@ -87,11 +93,13 @@ public class CalculatorContext : DbContext
             entity.HasKey(e => e.DinosaurId);
 
             // Maps entity properties to the database columns
-            entity.Property(e => e.DinosaurId).HasColumnName("dinosaur_id");
+            entity.Property(e => e.DinosaurId).HasMaxLength(36).HasColumnName("dinosaur_id");
 
             entity.Property(e => e.Health).HasColumnName("health");
 
-            entity.Property(e => e.Stamina).HasColumnName("oxygen");
+            entity.Property(e => e.Stamina).HasColumnName("stamina");
+
+            entity.Property(e => e.Oxygen).HasColumnName("oxygen");
 
             entity.Property(e => e.Food).HasColumnName("food");
 
@@ -103,8 +111,9 @@ public class CalculatorContext : DbContext
 
             entity.Property(e => e.MovementSpeed).HasColumnName("movement_speed");
         });
+        #endregion
 
-        // Configures the Dinosaur table mapping
+        #region Dinosaur region
         modelBuilder.Entity<Dinosaur>(entity =>
         {
             // Specifies the database table for this entity
@@ -114,18 +123,30 @@ public class CalculatorContext : DbContext
             entity.HasKey(e => e.DinosaurId);
 
             // Maps entity properties to the database columns
-            entity.Property(e => e.DinosaurId)
-                .HasColumnName("dinosaur_id");
+            entity.Property(e => e.DinosaurId).HasMaxLength(36).HasColumnName("dinosaur_id");
 
-            entity.Property(e => e.BreedingLineId)
-                .HasColumnName("breeding_line_id");
+            entity.Property(e => e.BreedingLineId).HasMaxLength(36).HasColumnName("breeding_line_id");
 
-            entity.Property(e => e.DinosaurName)
-                .HasColumnName("dinosaur_name")
-                .HasMaxLength(100);
+            entity.Property(e => e.DinosaurName).HasMaxLength(100).HasColumnName("dinosaur_name");
+
+            entity.Property(e => e.Species).HasColumnName("species");
+
+            entity.Property(e => e.Gender).HasColumnName("gender");
+
+            entity.Property(e => e.Mutated).HasColumnName("mutated");
+
+            entity.Property(e => e.AquaticDino).HasColumnName("aquatic_dino");
+
+            entity.Property(e => e.FatherId).HasMaxLength(36).HasColumnName("father_id");
+
+            entity.Property(e => e.MotherId).HasMaxLength(36).HasColumnName("mother_id");
+
+
 
             // Configure the FK relationship
-            entity.HasOne(d => d.BreedingLine).WithMany(b => b.Dinosaurs).HasForeignKey(d => d.BreedingLineId);
+            entity.HasOne<BreedingLine>().WithMany(b => b.Dinosaurs).HasForeignKey(d => d.BreedingLineId).OnDelete(DeleteBehavior.Restrict);
         });
+        #endregion
     }
+    #endregion 
 }

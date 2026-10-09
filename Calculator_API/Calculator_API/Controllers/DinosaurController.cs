@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Calculator_API.Data;
+using Calculator_API.IRepository;
+using Calculator_API.Models;
 using System.Text;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,6 +14,6 @@ namespace Calculator_API.Controllers
     [AllowAnonymous]
     public class DinosaurController : ControllerBase
     {
-        private readonly IUser repository;
+        private readonly IDino repository;
     }
 }

@@ -11,7 +11,8 @@
         public bool AquaticDino { get; set; }
         public Guid FatherId { get; set; }
         public Guid MotherId { get; set; }
-        public Stats MutatedStates { get; set; }
+        public MutatedStats MutatedStates { get; set; }
+        public Stats Stats { get; set; }
         public GenerationsEnum GenerationType { get; set; }
     }
 }
