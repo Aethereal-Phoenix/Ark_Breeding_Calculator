@@ -141,8 +141,6 @@ public class CalculatorContext : DbContext
 
             entity.Property(e => e.MotherId).HasMaxLength(36).HasColumnName("mother_id");
 
-
-
             // Configure the FK relationship
             entity.HasOne<BreedingLine>().WithMany(b => b.Dinosaurs).HasForeignKey(d => d.BreedingLineId).OnDelete(DeleteBehavior.Restrict);
         });
