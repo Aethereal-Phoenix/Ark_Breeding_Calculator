@@ -4,8 +4,8 @@ namespace Calculator_API.Models
 {
     public class DinosaurData
     {
-        public Guid DinosaurId { get; set; } // PK
-        public Guid BreedingLineId { get; set; } // FKf
+        public Guid DinosaurId { get; set; } // > PK
+        public Guid BreedingLineId { get; set; } // > FK
         public string DinosaurName { get; set; }
         public Guid FatherId { get; set; }
         public Guid MotherId { get; set; }
