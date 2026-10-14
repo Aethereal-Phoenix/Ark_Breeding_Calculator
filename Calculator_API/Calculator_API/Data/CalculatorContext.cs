@@ -7,10 +7,12 @@ public class CalculatorContext : DbContext
 {
     // Represents the Dinosaur and BreedingLine tables in the database
     // EF Core maps database records to these model classes
+    #region EF Core mappings
     public DbSet<Dinosaur> Dinosaurs { get; set; } = null!;
     public DbSet<Stats> Stats { get; set; } = null!;
     public DbSet<MutatedStats> MutatedStats { get; set; } = null!;
     public DbSet<BreedingLine> BreedingLines { get; set; } = null!;
+    #endregion
 
     // Configures the SQLite database connection
     #region OnConfiguring
