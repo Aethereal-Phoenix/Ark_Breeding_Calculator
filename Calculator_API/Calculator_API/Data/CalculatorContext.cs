@@ -5,6 +5,13 @@ namespace Calculator_API.Data;
 
 public class CalculatorContext : DbContext
 {
+    private readonly IConfiguration _config;
+
+    public CalculatorContext(IConfiguration config)
+    {
+        _config = config;
+    }
+
     // Represents the Dinosaur and BreedingLine tables in the database
     // EF Core maps database records to these model classes
     #region EF Core mappings
