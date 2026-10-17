@@ -119,10 +119,13 @@ public class CalculatorContext : DbContext
             entity.Property(e => e.Melee).HasColumnName("melee");
 
             entity.Property(e => e.MovementSpeed).HasColumnName("movement_speed");
+
+            // Sets up the FK relationship
+            entity.HasOne<Dinosaur>().WithOne(d => d.MutatedStats).HasForeignKey<Stats>(s => s.DinosaurId).OnDelete(DeleteBehavior.Cascade);
         });
         #endregion
 
-        #region Dinosaur region
+        #region Dinosaur entity
         modelBuilder.Entity<Dinosaur>(entity =>
         {
             // Specifies the database table for this entity
