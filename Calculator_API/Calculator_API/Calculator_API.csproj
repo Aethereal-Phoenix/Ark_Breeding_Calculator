@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\dinosaur_database_SQL_scripts\" />
     <Folder Include="Repository\" />
   </ItemGroup>
 
