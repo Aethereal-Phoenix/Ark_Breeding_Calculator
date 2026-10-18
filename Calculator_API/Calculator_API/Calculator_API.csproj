@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\._dinosaur_database.db" />
+    <None Remove="Data\dinosaur_database.db" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13">
       <PrivateAssets>all</PrivateAssets>
@@ -24,6 +29,11 @@
 
   <ItemGroup>
     <Folder Include="Repository\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="Data\._dinosaur_database.db" />
+    <Page Include="Data\dinosaur_database.db" />
   </ItemGroup>
 
 </Project>

@@ -24,10 +24,10 @@ public class CalculatorContext : DbContext
     // Configures the SQLite database connection
     #region OnConfiguring
     protected override void OnConfiguring(
-        DbContextOptionsBuilder optionsBuilder)
+    DbContextOptionsBuilder optionsBuilder)
     {
-        var dbPath = Path.Combine
-            (AppContext.BaseDirectory,
+        var dbPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
             "Data",
             "dinosaur_database.db");
 
