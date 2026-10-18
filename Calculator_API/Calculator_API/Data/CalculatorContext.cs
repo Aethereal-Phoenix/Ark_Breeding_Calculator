@@ -43,7 +43,6 @@ public class CalculatorContext : DbContext
         #region BreedingLine entity
         modelBuilder.Entity<BreedingLine>(entity =>
         {
-            // !TODO: Remake this entity
             entity.ToTable("breeding_line");
 
             entity.HasKey(e => e.BreedingLineId);
@@ -60,7 +59,25 @@ public class CalculatorContext : DbContext
         #region Stats entity
         modelBuilder.Entity<Stats>(entity =>
         {
-            // !TODO: Remake this entity
+            entity.ToTable("stats");
+
+            entity.HasKey(e => e.StatsId);
+
+            entity.Property(e => e.Health).HasColumnName("health");
+
+            entity.Property(e => e.Stamina).HasColumnName("stamina");
+
+            entity.Property(e => e.Oxygen).HasColumnName("oxygen");
+
+            entity.Property(e => e.Food).HasColumnName("food");
+
+            entity.Property(e => e.Water).HasColumnName("water");
+
+            entity.Property(e => e.Weight).HasColumnName("weight");
+
+            entity.Property(e => e.Melee).HasColumnName("melee");
+
+            entity.Property(e => e.MovementSpeed).HasColumnName("movement_speed");
         });
         #endregion
 
@@ -68,7 +85,25 @@ public class CalculatorContext : DbContext
         // Configures the Stats table mapping
         modelBuilder.Entity<MutatedStats>(entity =>
         {
-            // !TODO: Remake this entity
+            entity.ToTable("mutated_stats");
+
+            entity.HasKey(e => e.MutatedStatsId);
+
+            entity.Property(e => e.Health).HasColumnName("health");
+
+            entity.Property(e => e.Stamina).HasColumnName("stamina");
+
+            entity.Property(e => e.Oxygen).HasColumnName("oxygen");
+
+            entity.Property(e => e.Food).HasColumnName("food");
+
+            entity.Property(e => e.Water).HasColumnName("water");
+
+            entity.Property(e => e.Weight).HasColumnName("weight");
+
+            entity.Property(e => e.Melee).HasColumnName("melee");
+
+            entity.Property(e => e.MovementSpeed).HasColumnName("movement_speed");
         });
         #endregion
 
