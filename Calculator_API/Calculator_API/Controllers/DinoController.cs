@@ -72,5 +72,20 @@ namespace Calculator_API.Controllers
 
             return Ok(dino);
         }
+
+        [HttpGet("teststats")]
+        public async Task<IActionResult> TestStats()
+        {
+            var dino = await _context.Dinosaurs
+                .Include(d => d.Stats)
+                .FirstOrDefaultAsync();
+
+            return Ok(new
+            {
+                dino?.DinosaurName,
+                dino?.Stats.Health,
+                dino?.Stats.Stamina
+            });
+        }
     }
 }
