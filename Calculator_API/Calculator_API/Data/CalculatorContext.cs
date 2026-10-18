@@ -44,6 +44,16 @@ public class CalculatorContext : DbContext
         modelBuilder.Entity<BreedingLine>(entity =>
         {
             // !TODO: Remake this entity
+            entity.ToTable("breeding_line");
+
+            entity.HasKey(e => e.BreedingLineId);
+
+            entity.Property(e => e.BreedingLineId).HasMaxLength(36).HasColumnName("breeding_line_id");
+
+            entity.Property(e => e.Species).HasColumnName("species");
+
+            entity.Property(e => e.BreedingLineName).HasColumnName("breeding_line_name");
+
         });
         #endregion
 
