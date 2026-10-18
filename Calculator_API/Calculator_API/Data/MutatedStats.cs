@@ -2,7 +2,7 @@
 {
     public class MutatedStats
     {
-        public Guid DinosaurId { get; set; }
+        public Guid MutatedStatsId { get; set; }
         public double Health { get; set; }
         public double Stamina { get; set; }
         public double Oxygen { get; set; }
