@@ -28,64 +28,47 @@ namespace Calculator_API.Controllers
             _context = context;
         }
 
-
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("GetUsers", Name = "GetUsers")]
+        [AllowAnonymous]
+        public async Task<GetBreedingLinesResponseModel> GetAllBreedingLines()
         {
-            return Ok("Controller reached.");
-        }
+            var response = new GetBreedingLinesResponseModel();
 
-        [HttpGet("dbtest")]
-        public async Task<IActionResult> DbTest()
-        {
-            bool canConnect = await _context.Database.CanConnectAsync();
 
-            return Ok(canConnect);
-        }
-
-        [HttpGet("dbpath")]
-        public IActionResult DbPath()
-        {
-            var dbPath = Path.Combine(
-                AppContext.BaseDirectory,
-                "Data",
-                "dinosaur_database.db");
-
-            return Ok(dbPath);
-        }
-
-        [HttpGet("cwd")]
-        public IActionResult CurrentDirectory()
-        {
-            return Ok(Directory.GetCurrentDirectory());
-        }
-
-        [HttpGet("firstdino")]
-        public async Task<IActionResult> FirstDino()
-        {
-            var dino = await _context.Dinosaurs.FirstOrDefaultAsync();
-
-            if (dino == null)
+            try
             {
-                return NotFound("No dinosaurs found.");
+                // DAL returns List<User> (entity). Convert to DTO list.
+                var breedingLines = repository.GetAllBreedingLines();
+
+                if (breedingLines == null || breedingLines.Count == 0)
+                {
+                    response.Status = false;
+                    response.StatusCode = 404;
+                    response.Message = "No users found";
+                    response.BreedingLinesList = new List<BreedingLine>();
+                    return response;
+                }
+
+                response.Status = true;
+                response.StatusCode = 200;
+                response.Message = "Get Successful";
+                response.BreedingLinesList = breedingLines.Select(u => new BreedingLineData // !TODO: Need to make BreedingLineData class
+                {
+                    // !TODO: Need to assign all properties to response
+                }).ToList();
+
+                return response;
             }
-
-            return Ok(dino);
-        }
-
-        [HttpGet("teststats")]
-        public async Task<IActionResult> TestStats()
-        {
-            var dino = await _context.Dinosaurs
-                .Include(d => d.Stats)
-                .FirstOrDefaultAsync();
-
-            return Ok(new
+            catch (Exception ex)
             {
-                dino?.DinosaurName,
-                dino?.Stats.Health,
-                dino?.Stats.Stamina
-            });
+                Console.WriteLine("GetAllUsers --- " + ex.Message);
+                response.Status = false;
+                response.Message = "Get Failed";
+                response.StatusCode = 500;
+                response.BreedingLinesList = new List<BreedingLineData>();
+                return response;
+            }
         }
+    }
     }
 }
