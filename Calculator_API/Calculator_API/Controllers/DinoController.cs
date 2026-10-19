@@ -28,7 +28,7 @@ namespace Calculator_API.Controllers
             _context = context;
         }
 
-        [HttpGet("GetUsers", Name = "GetUsers")]
+        [HttpGet("GetAllBreedingLines", Name = "GetAllBreedingLines")]
         [AllowAnonymous]
         public async Task<GetBreedingLinesResponseModel> GetAllBreedingLines()
         {
@@ -45,16 +45,18 @@ namespace Calculator_API.Controllers
                     response.Status = false;
                     response.StatusCode = 404;
                     response.Message = "No users found";
-                    response.BreedingLinesList = new List<BreedingLine>();
+                    response.BreedingLinesList = new List<BreedingLineData>();
                     return response;
                 }
 
                 response.Status = true;
                 response.StatusCode = 200;
                 response.Message = "Get Successful";
-                response.BreedingLinesList = breedingLines.Select(u => new BreedingLineData // !TODO: Need to make BreedingLineData class
+                response.BreedingLinesList = breedingLines.Select(b => new BreedingLineData()
                 {
-                    // !TODO: Need to assign all properties to response
+                    BreedingLineId = b.BreedingLineId,
+                    Species = b.Species,
+                    BreedingLineName = b.BreedingLineName
                 }).ToList();
 
                 return response;
@@ -69,6 +71,5 @@ namespace Calculator_API.Controllers
                 return response;
             }
         }
-    }
     }
 }

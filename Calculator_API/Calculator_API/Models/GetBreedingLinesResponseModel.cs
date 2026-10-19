@@ -8,6 +8,6 @@ namespace Calculator_API.Models
         public int StatusCode { get; set; }
         public string Message { get; set; } = string.Empty;
 
-        public List<BreedingLine> BreedingLinesList { get; set; } = new List<BreedingLine>();
+        public List<BreedingLineData> BreedingLinesList { get; set; } = new List<BreedingLineData>();
     }
 }
