@@ -1,6 +1,6 @@
 ﻿namespace Calculator_API.Models
 {
-    public class SaveDinosaurResponse
+    public class SaveDinosaursResponse
     {
         public int StatusCode { get; set; }
         public bool Status {  get; set; }
