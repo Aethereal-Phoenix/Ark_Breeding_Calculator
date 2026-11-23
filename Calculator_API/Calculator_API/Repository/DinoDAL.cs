@@ -46,7 +46,14 @@ namespace Calculator_API.Repository
             try
             {
                 // Query the database to get all of the dinos in dinosaur table that have this BreedingLineId
-                var dinosaurs = context.Dinosaurs.Where(d => d.BreedingLineId == breedingLineId);
+                var dinosaurs = context.Dinosaurs
+                    .Include(d => d.BreedingLine)
+                    .Include(d => d.Stats)
+                    .Include(d => d.MutatedStats)
+                    .Include(d => d.Father)
+                    .Include(d => d.Mother)
+                    .Where(d => d.BreedingLineId == breedingLineId)
+                    .ToList();
 
                 // Check that we didn't get a null
                 if (dinosaurs != null)
@@ -77,7 +84,7 @@ namespace Calculator_API.Repository
                             Mother = dinosaur.Mother
                         };
 
-                        dinosaurList.Add(dinosaur);
+                        dinosaurList.Add(currentDinosaur);
                     }
                 }
 

@@ -102,7 +102,7 @@ namespace Calculator_API.Controllers
                 {
                     DinosaurId = d.DinosaurId,
                     BreedingLineId = d.BreedingLineId,
-                    BreedingLine = d.BreedingLine,
+                    BreedingLineName = d.BreedingLine?.BreedingLineName,
                     DinosaurName = d.DinosaurName,
                     Species = d.Species,
                     Gender = d.Gender,
@@ -114,9 +114,9 @@ namespace Calculator_API.Controllers
                     Mutated = d.Mutated,
                     AquaticDino = d.AquaticDino,
                     FatherId = d.FatherId,
-                    Father = d.Father,
+                    FatherName = d.Father?.DinosaurName,
                     MotherId = d.MotherId,
-                    Mother = d.Mother
+                    MotherName = d.Mother?.DinosaurName
                 }).ToList();
 
                 return response;
@@ -159,7 +159,7 @@ namespace Calculator_API.Controllers
 
                         response.Data.DinosaurId = dino.Data.DinosaurId;
                         response.Data.BreedingLineId = dino.Data.BreedingLineId;
-                        response.Data.BreedingLine = dino.Data.BreedingLine;
+                        response.Data.BreedingLineName = dino.Data.BreedingLineName;
                         response.Data.DinosaurName = dino.Data.DinosaurName;
                         response.Data.Species = dino.Data.Species;
                         response.Data.Gender = dino.Data.Gender;
@@ -171,9 +171,9 @@ namespace Calculator_API.Controllers
                         response.Data.Mutated = dino.Data.Mutated;
                         response.Data.AquaticDino = dino.Data.AquaticDino;
                         response.Data.FatherId = dino.Data.FatherId;
-                        response.Data.Father = dino.Data.Father;
+                        response.Data.FatherName = dino.Data.FatherName;
                         response.Data.MotherId = dino.Data.MotherId;
-                        response.Data.Mother = dino.Data.Mother;
+                        response.Data.MotherName = dino.Data.MotherName;
                     }
                     else
                     {
