@@ -27,6 +27,7 @@ namespace Calculator_API.Controllers
             _context = context;
         }
 
+        #region Get all BreedingLines method
         [HttpGet("GetAllBreedingLines", Name = "GetAllBreedingLines")]
         [AllowAnonymous]
         public async Task<GetBreedingLinesResponseModel> GetAllBreedingLines()
@@ -70,7 +71,9 @@ namespace Calculator_API.Controllers
                 return response;
             }
         }
+        #endregion
 
+        #region Get all Dionsaurs by BreedingLine ID
         [HttpGet("GetAllDinosaursByBreedingLineId", Name = "GetAllDinosaursByBreedingLineId")]
         [AllowAnonymous]
         public async Task<GetDinosaursResponseModel> GetAllDinosaursByBreedingLineId(int breedingLineId)
@@ -127,5 +130,6 @@ namespace Calculator_API.Controllers
                 return response;
             }
         }
+        #endregion
     }
 }
