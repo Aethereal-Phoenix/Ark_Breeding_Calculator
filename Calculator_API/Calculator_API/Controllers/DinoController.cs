@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
 
-namespace Calculator_API.Controllers
+namespace Calculator_API.Controllers 
 {
 
 

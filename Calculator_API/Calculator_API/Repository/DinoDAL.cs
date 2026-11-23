@@ -30,12 +30,14 @@ namespace Calculator_API.Repository
         }
         #endregion
 
+        #region Get all Dinosaurs in a single BreedingLine by ID
         public List<Dinosaur> GetDinosaursByBreedingLine(int breedingLineId)
         {
             List<Dinosaur> dinosaurList = new List<Dinosaur>();
 
             try
             {
+                // Query the database to get all of the dinos in dinosaur table that have this BreedingLineId
                 var dinosaurs = context.Dinosaurs.Where(d => d.BreedingLineId == breedingLineId);
 
                 // Check that we didn't get a null
@@ -45,7 +47,29 @@ namespace Calculator_API.Repository
                     {
                         dinosaur.Stats = GetStatsById(dinosaur.StatsId);
                         dinosaur.MutatedStats = GetMutatedStatsById(dinosaur.MutatedStatsId);
-                        // > I am working here
+
+                        Dinosaur currentDinosaur = new Dinosaur()
+                        {
+                            DinosaurId = dinosaur.DinosaurId,
+                            BreedingLineId = dinosaur.BreedingLineId,
+                            BreedingLine = dinosaur.BreedingLine,
+                            DinosaurName = dinosaur.DinosaurName,
+                            Species = dinosaur.Species,
+                            Gender = dinosaur.Gender,
+                            Generation = dinosaur.Generation,
+                            StatsId = dinosaur.StatsId,
+                            Stats = dinosaur.Stats,
+                            MutatedStatsId = dinosaur.MutatedStatsId,
+                            MutatedStats = dinosaur.MutatedStats,
+                            Mutated = dinosaur.Mutated,
+                            AquaticDino = dinosaur.AquaticDino,
+                            FatherId = dinosaur.FatherId,
+                            Father = dinosaur.Father,
+                            MotherId = dinosaur.MotherId,
+                            Mother = dinosaur.Mother
+                        };
+
+                        dinosaurList.Add(dinosaur);
                     }
                 }
 
@@ -62,7 +86,9 @@ namespace Calculator_API.Repository
 
             return dinosaurList;
         }
+        #endregion
 
+        #region Get Stats for a single Dinosaur by StatsId
         public Stats GetStatsById(int statsId)
         {
             var stats = new Stats();
@@ -93,7 +119,9 @@ namespace Calculator_API.Repository
 
             return stats;
         }
+        #endregion
 
+        #region Get MutatedStats for a single Dinosaru by MutatedStatsId
         public MutatedStats GetMutatedStatsById(int mutatedStatsId)
         {
             var mutatedStats = new MutatedStats();
@@ -124,5 +152,6 @@ namespace Calculator_API.Repository
 
             return mutatedStats;
         }
+        #endregion
     }
 }
