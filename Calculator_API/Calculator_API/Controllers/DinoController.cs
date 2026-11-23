@@ -11,7 +11,6 @@ using System.Text;
 namespace Calculator_API.Controllers 
 {
 
-
     [ApiController]
     [Route("[controller]")]
     [AllowAnonymous]
