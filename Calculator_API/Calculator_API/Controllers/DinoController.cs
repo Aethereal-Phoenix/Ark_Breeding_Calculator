@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 
@@ -129,6 +130,67 @@ namespace Calculator_API.Controllers
                 response.DinosaurList = new List<DinosaurData>();
                 return response;
             }
+        }
+        #endregion
+
+        #region Create Dinosaur
+        [HttpPost("AddDinosaurToBreedingLine", Name = "AddDinosaurToBreedingLine")]
+        [AllowAnonymous]
+        public async Task<CreateDinosaurResponseModel> AddDinosaurToBreedingLine(DinosaurRegistrationModel dinosaurModel)
+        {
+            CreateDinosaurResponseModel response = new CreateDinosaurResponseModel();
+
+            if (dinosaurModel != null)
+            {
+                try
+                {
+                    var dino = await repository.AddDinosaurToBreedingLine(dinosaurModel).ConfigureAwait(true);
+
+                    if (dino.StatusCode == 200)
+                    {
+                        // Dino has been added
+
+                        response.Status = true;
+                        response.Message = "Dinosaur added";
+                        response.StatusCode = 200;
+
+                        // Send back the dinosaur data we just added
+                        response.Data = new DinosaurData();
+
+                        response.Data.DinosaurId = dino.Data.DinosaurId;
+                        response.Data.BreedingLineId = dino.Data.BreedingLineId;
+                        response.Data.BreedingLine = dino.Data.BreedingLine;
+                        response.Data.DinosaurName = dino.Data.DinosaurName;
+                        response.Data.Species = dino.Data.Species;
+                        response.Data.Gender = dino.Data.Gender;
+                        response.Data.Generation = dino.Data.Generation;
+                        response.Data.StatsId = dino.Data.StatsId;
+                        response.Data.Stats = dino.Data.Stats;
+                        response.Data.MutatedStatsId = dino.Data.MutatedStatsId;
+                        response.Data.MutatedStats = dino.Data.MutatedStats;
+                        response.Data.Mutated = dino.Data.Mutated;
+                        response.Data.AquaticDino = dino.Data.AquaticDino;
+                        response.Data.FatherId = dino.Data.FatherId;
+                        response.Data.Father = dino.Data.Father;
+                        response.Data.MotherId = dino.Data.MotherId;
+                        response.Data.Mother = dino.Data.Mother;
+                    }
+                    else
+                    {
+                        response.Status = false;
+                        response.Message = "Add dinosaur failed";
+                        response.StatusCode = 500;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response.Status = false;
+                    response.Message = "Registration Failed";
+                    response.StatusCode = 500;
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return response;
         }
         #endregion
     }
