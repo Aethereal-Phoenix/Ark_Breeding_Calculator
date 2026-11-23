@@ -80,10 +80,10 @@ namespace Calculator_API.Controllers
 
             try
             {
-                // DAL returns List<User> (entity). Convert to DTO list.
-                var users = repository.GetDinosaursByBreedingLine(breedingLineId);
+                // DAL returns List<Dinosaur> (entity). Convert to DTO list.
+                var dinos = repository.GetDinosaursByBreedingLine(breedingLineId);
 
-                if (users == null || users.Count == 0)
+                if (dinos == null || dinos.Count == 0)
                 {
                     response.Status = false;
                     response.StatusCode = 404;
@@ -95,7 +95,7 @@ namespace Calculator_API.Controllers
                 response.Status = true;
                 response.StatusCode = 200;
                 response.Message = "Get Successful";
-                response.DinosaurList = users.Select(d => new DinosaurData
+                response.DinosaurList = dinos.Select(d => new DinosaurData
                 {
                     DinosaurId = d.DinosaurId,
                     BreedingLineId = d.BreedingLineId,

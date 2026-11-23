@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\._dinosaur_database.db" />
     <None Remove="Data\dinosaur_database.db" />
   </ItemGroup>
 
@@ -32,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Include="Data\._dinosaur_database.db" />
     <Page Include="Data\dinosaur_database.db" />
   </ItemGroup>
 
