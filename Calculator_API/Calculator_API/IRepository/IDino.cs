@@ -24,5 +24,12 @@ namespace Calculator_API.IRepository
         /// <param name="dinosaurId"></param>
         /// <returns></returns>
         public Stats GetStatsById(int statsId);
+
+        /// <summary>
+        /// Add a new Dinosaur to an existing BreedingLine
+        /// </summary>
+        /// <param name="dinosaur"></param>
+        /// <returns></returns>
+        public Task<SaveDinosaursResponse> AddDinosaurToBreedingLine(DinosaurRegistrationModel dinosaur);
     }
 }

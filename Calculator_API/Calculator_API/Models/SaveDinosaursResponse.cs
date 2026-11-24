@@ -9,7 +9,7 @@
         // Return to DTO not EF entity
         public DinosaurData? Data { get; set; }
         public Error? Error { get; set; }
-        public int UserId { get; set; }
+        public int DinosaurId { get; set; }
     }
 
     public class Error
