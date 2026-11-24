@@ -112,6 +112,11 @@ namespace Calculator_API.Repository
             {
                 var dinosaurStats = context.Stats.Where(s => s.StatsId == statsId).FirstOrDefault();
 
+                if (dinosaurStats == null)
+                {
+                    throw new InvalidOperationException($"Stats record with {statsId} was not found");
+                }
+
                 stats = new Stats()
                 {
                     StatsId = dinosaurStats.StatsId,
@@ -136,7 +141,7 @@ namespace Calculator_API.Repository
         }
         #endregion
 
-        #region Get MutatedStats for a single Dinosaru by MutatedStatsId
+        #region Get MutatedStats for a single Dinosaru by Id
         public MutatedStats GetMutatedStatsById(int mutatedStatsId)
         {
             var mutatedStats = new MutatedStats();
