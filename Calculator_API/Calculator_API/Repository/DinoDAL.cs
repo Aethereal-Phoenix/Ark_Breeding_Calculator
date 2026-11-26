@@ -41,65 +41,26 @@ namespace Calculator_API.Repository
         #region Get all Dinosaurs in a single BreedingLine by ID
         public List<Dinosaur> GetDinosaursByBreedingLine(int breedingLineId)
         {
-            List<Dinosaur> dinosaurList = new List<Dinosaur>();
-
             try
             {
-                // Query the database to get all of the dinos in dinosaur table that have this BreedingLineId
                 var dinosaurs = context.Dinosaurs
+                    .AsNoTracking()
                     .Include(d => d.BreedingLine)
                     .Include(d => d.Stats)
                     .Include(d => d.MutatedStats)
                     .Include(d => d.Father)
                     .Include(d => d.Mother)
                     .Where(d => d.BreedingLineId == breedingLineId)
+                    .OrderBy(d => d.DinosaurId)
                     .ToList();
 
-                // Check that we didn't get a null
-                if (dinosaurs != null)
-                {
-                    foreach (var dinosaur in dinosaurs)
-                    {
-                        dinosaur.Stats = GetStatsById(dinosaur.StatsId);
-                        dinosaur.MutatedStats = GetMutatedStatsById(dinosaur.MutatedStatsId);
-
-                        Dinosaur currentDinosaur = new Dinosaur()
-                        {
-                            DinosaurId = dinosaur.DinosaurId,
-                            BreedingLineId = dinosaur.BreedingLineId,
-                            BreedingLine = dinosaur.BreedingLine,
-                            DinosaurName = dinosaur.DinosaurName,
-                            Species = dinosaur.Species,
-                            Gender = dinosaur.Gender,
-                            Generation = dinosaur.Generation,
-                            StatsId = dinosaur.StatsId,
-                            Stats = dinosaur.Stats,
-                            MutatedStatsId = dinosaur.MutatedStatsId,
-                            MutatedStats = dinosaur.MutatedStats,
-                            Mutated = dinosaur.Mutated,
-                            AquaticDino = dinosaur.AquaticDino,
-                            FatherId = dinosaur.FatherId,
-                            Father = dinosaur.Father,
-                            MotherId = dinosaur.MotherId,
-                            Mother = dinosaur.Mother
-                        };
-
-                        dinosaurList.Add(currentDinosaur);
-                    }
-                }
-
-                if (dinosaurList.Count == 0)
-                {
-                    return null;
-                }
+                return dinosaurs.Count == 0 ? null : dinosaurs;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"GetAllDinosaursByBreedingLineId -- {ex.Message}");
+                Console.WriteLine($"GetDinosaursByBreedingLine -- {ex.Message}");
                 throw;
             }
-
-            return dinosaurList;
         }
         #endregion
 
@@ -150,6 +111,11 @@ namespace Calculator_API.Repository
             {
                 var dinosaurMutatedStats = context.MutatedStats.Where(s => s.MutatedStatsId == mutatedStatsId).FirstOrDefault();
 
+                if (dinosaurMutatedStats == null)
+                {
+                    throw new InvalidOperationException($"MutatedStats record with {mutatedStatsId} was not found");
+                }
+
                 mutatedStats = new MutatedStats()
                 {
                     MutatedStatsId = dinosaurMutatedStats.MutatedStatsId,
@@ -179,6 +145,14 @@ namespace Calculator_API.Repository
     DinosaurRegistrationModel dinosaur)
         {
             SaveDinosaursResponse response = new();
+
+            if (dinosaur.Stats == null || dinosaur.MutatedStats == null)
+            {
+                response.Status = false;
+                response.StatusCode = 400;
+                response.Message = "Stats and MutatedStats are required";
+                return response;
+            }
 
             try
             {
@@ -219,12 +193,8 @@ namespace Calculator_API.Repository
                     }
                 };
 
-                using (var db = new CalculatorContext(_config))
-                {
-                    db.Dinosaurs.Add(newDinosaur);
-
-                    await db.SaveChangesAsync();
-                }
+                context.Dinosaurs.Add(newDinosaur);
+                await context.SaveChangesAsync();
 
                 response.Status = true;
                 response.StatusCode = 200;
@@ -257,8 +227,8 @@ namespace Calculator_API.Repository
                 Console.WriteLine($"AddDinosaurToBreedingLine -- {ex}");
 
                 response.Status = false;
-                response.StatusCode = 0;
-                response.Message = ex.Message;
+                response.StatusCode = 500;
+                response.Message = $"An error occured while adding the dinosaur";
             }
 
             return response;
