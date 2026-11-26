@@ -16,71 +16,80 @@ namespace Calculator_API.Controllers
     //                  and converts entities into response DTOs.
     //   DAL (IDino) -> talks to the database through EF Core.
     //
-    // The controller never touches the database directly. It only knows
-    // about the IDino interface, which is what makes it easy to test.
+    // Every endpoint returns a response model that contains:
+    //   Status     = true/false (did it work?)
+    //   StatusCode = 200 / 400 / 404 / 500 (what happened, stored in the body)
+    //   Message    = human-readable text
+    //
+    // NOTE: The real HTTP status of every response is still 200 OK.
+    // The StatusCode above only lives inside the response body.
     // ---------------------------------------------------------------------
-    [ApiController]          // Enables automatic model binding/validation behavior for APIs
-    [Route("[controller]")]  // Base route is the class name minus "Controller" -> /Dino
-    [AllowAnonymous]         // TODO: Everything is public right now. Fine for development,
-                             // but add [Authorize] to endpoints that write data before deploying.
+    [ApiController]          // Turns on API-specific behavior (automatic model binding, etc.)
+    [Route("[controller]")]  // Base route = class name minus "Controller" -> /Dino
+    [AllowAnonymous]         // Anyone can call these endpoints without logging in
     public class DinoController : ControllerBase
     {
         #region Constructor
 
-        // The repository (DAL) used for all data access. Typed as the interface
-        // so tests can pass in a real DinoDAL on an in-memory DB, or a mock.
+        // The repository (DAL) used for all database work.
+        // Typed as the IDino interface so it can be swapped out in tests.
         private readonly IDino repository;
 
-        // The DI container supplies the IDino implementation (DinoDAL) automatically.
-        // NOTE: Tests now build the controller with: new DinoController(repo)
-        public DinoController(IDino repo)
+        // Database context and configuration. Currently NOT used by any method in this
+        // controller (the repository does the database work), but they stay in the
+        // constructor so existing tests and dependency injection keep working.
+        private readonly CalculatorContext _context;
+        private readonly IConfiguration config;
+
+        // ASP.NET's dependency injection supplies these automatically at runtime.
+        public DinoController(IDino repo, IConfiguration config, CalculatorContext context)
         {
             repository = repo;
+            this.config = config;
+            _context = context;
         }
 
         #endregion
 
-        #region Get all BreedingLines
+        #region Get all BreedingLines method
 
         // GET /Dino/GetAllBreedingLines
-        // Returns every breeding line as a list of BreedingLineData DTOs.
+        // Returns every breeding line as a list of BreedingLineData objects.
         //
-        // Response codes (inside the body, the HTTP status is always 200 for now):
+        // StatusCodes returned in the body:
         //   200 = at least one breeding line found
-        //   404 = none found
-        //   500 = unexpected error
-        //
-        // No async/await here because the DAL call is synchronous.
-        // Task.FromResult wraps the finished response in a Task so callers can still await it.
+        //   404 = no breeding lines found
+        //   500 = something unexpected went wrong
         [HttpGet("GetAllBreedingLines", Name = "GetAllBreedingLines")]
         [AllowAnonymous]
-        public Task<GetBreedingLinesResponseModel> GetAllBreedingLines()
+        public async Task<GetBreedingLinesResponseModel> GetAllBreedingLines()
         {
             var response = new GetBreedingLinesResponseModel();
 
             try
             {
                 // The DAL returns entities (List<BreedingLine>).
-                // We convert them to DTOs below so the API never exposes raw entities.
+                // They get converted to DTOs below before being sent back.
                 var breedingLines = repository.GetAllBreedingLines();
 
-                // Nothing found -> 404 with an empty list (never null, so callers
-                // can loop over the list without a null check).
+                // Nothing found -> 404. The list is set to an empty list (not null)
+                // so the caller can safely loop over it.
                 if (breedingLines == null || breedingLines.Count == 0)
                 {
                     response.Status = false;
                     response.StatusCode = 404;
                     response.Message = "No breeding lines found";
                     response.BreedingLinesList = new List<BreedingLineData>();
-                    return Task.FromResult(response);
+                    return response;
                 }
 
-                // Found at least one -> success.
+                // At least one breeding line found -> success.
                 response.Status = true;
                 response.StatusCode = 200;
                 response.Message = "Get Successful";
 
-                // Map each BreedingLine entity to a BreedingLineData DTO.
+                // Copy each BreedingLine entity into a BreedingLineData DTO.
+                // Select() transforms each item, ToList() turns the result back into a list.
                 response.BreedingLinesList = breedingLines.Select(b => new BreedingLineData()
                 {
                     BreedingLineId = b.BreedingLineId,
@@ -88,44 +97,44 @@ namespace Calculator_API.Controllers
                     BreedingLineName = b.BreedingLineName
                 }).ToList();
 
-                return Task.FromResult(response);
+                return response;
             }
             catch (Exception ex)
             {
-                // Something unexpected went wrong. Log the real error for us,
-                // but only send a generic message to the caller.
+                // Unexpected error. Log the real reason for us, but only send
+                // a generic message to the caller.
                 Console.WriteLine("GetAllBreedingLines --- " + ex.Message);
 
                 response.Status = false;
                 response.Message = "Get Failed";
                 response.StatusCode = 500;
                 response.BreedingLinesList = new List<BreedingLineData>();
-                return Task.FromResult(response);
+                return response;
             }
         }
 
         #endregion
 
-        #region Get all Dinosaurs by BreedingLine ID
+        #region Get all Dionsaurs by BreedingLine ID
 
         // GET /Dino/GetAllDinosaursByBreedingLineId?breedingLineId=1
-        // Returns every dinosaur in one breeding line, including its stats,
-        // mutated stats, and parent names.
+        // Returns every dinosaur in one breeding line, including stats,
+        // mutated stats, and the names of the breeding line and parents.
         //
-        // Response codes (inside the body):
+        // StatusCodes returned in the body:
         //   200 = at least one dinosaur found
         //   404 = none found (the DAL returns null when the line has no dinosaurs)
-        //   500 = unexpected error
+        //   500 = something unexpected went wrong
         [HttpGet("GetAllDinosaursByBreedingLineId", Name = "GetAllDinosaursByBreedingLineId")]
         [AllowAnonymous]
-        public Task<GetDinosaursResponseModel> GetAllDinosaursByBreedingLineId(int breedingLineId)
+        public async Task<GetDinosaursResponseModel> GetAllDinosaursByBreedingLineId(int breedingLineId)
         {
             var response = new GetDinosaursResponseModel();
 
             try
             {
-                // The DAL returns entities with Stats, MutatedStats, BreedingLine,
-                // Father and Mother already loaded (via .Include) or null if none found.
+                // The DAL returns Dinosaur entities with Stats, MutatedStats,
+                // BreedingLine, Father and Mother already loaded (or null if none found).
                 var dinos = repository.GetDinosaursByBreedingLine(breedingLineId);
 
                 // Handles both null (what the DAL returns) and an empty list.
@@ -135,16 +144,16 @@ namespace Calculator_API.Controllers
                     response.StatusCode = 404;
                     response.Message = "No Dinosaurs found";
                     response.DinosaurList = new List<DinosaurData>();
-                    return Task.FromResult(response);
+                    return response;
                 }
 
                 response.Status = true;
                 response.StatusCode = 200;
                 response.Message = "Get Successful";
 
-                // Map each Dinosaur entity to a DinosaurData DTO.
-                // The "?." operators are null-safe: if a dinosaur has no BreedingLine,
-                // Father, or Mother, the name comes back null instead of crashing.
+                // Copy each Dinosaur entity into a DinosaurData DTO.
+                // The "?." operator is null-safe: if a dinosaur has no BreedingLine,
+                // Father or Mother, the name comes back as null instead of crashing.
                 response.DinosaurList = dinos.Select(d => new DinosaurData
                 {
                     DinosaurId = d.DinosaurId,
@@ -166,18 +175,18 @@ namespace Calculator_API.Controllers
                     MotherName = d.Mother?.DinosaurName
                 }).ToList();
 
-                return Task.FromResult(response);
+                return response;
             }
             catch (Exception ex)
             {
-                // Log the real error, return a generic message to the caller.
+                // Unexpected error. Log the real reason, return a generic message.
                 Console.WriteLine("GetAllDinosaursByBreedingLineId --- " + ex.Message);
 
                 response.Status = false;
                 response.Message = "Get Failed";
                 response.StatusCode = 500;
                 response.DinosaurList = new List<DinosaurData>();
-                return Task.FromResult(response);
+                return response;
             }
         }
 
@@ -186,24 +195,23 @@ namespace Calculator_API.Controllers
         #region Create Dinosaur
 
         // POST /Dino/AddDinosaurToBreedingLine
-        // Adds a new dinosaur (with its Stats and MutatedStats) to an existing breeding line.
-        // The request body is a DinosaurRegistrationModel.
+        // Adds a new dinosaur (with its Stats and MutatedStats) to an existing
+        // breeding line. The request body is a DinosaurRegistrationModel.
         //
-        // Response codes (inside the body):
+        // StatusCodes returned in the body:
         //   200 = dinosaur added
-        //   400 = missing/invalid data (null model, or the DAL reported missing Stats/MutatedStats)
-        //   500 = unexpected error
+        //   400 = bad request (no data sent, or the DAL reported missing Stats/MutatedStats)
+        //   500 = something unexpected went wrong
         //
-        // TODO: Add [Authorize] here before deploying. This endpoint writes data.
-        // This method IS async because it awaits the DAL's SaveChangesAsync.
+        // This method is async because it awaits the DAL's SaveChangesAsync.
         [HttpPost("AddDinosaurToBreedingLine", Name = "AddDinosaurToBreedingLine")]
         [AllowAnonymous]
         public async Task<CreateDinosaurResponseModel> AddDinosaurToBreedingLine(DinosaurRegistrationModel dinosaurModel)
         {
-            var response = new CreateDinosaurResponseModel();
+            CreateDinosaurResponseModel response = new CreateDinosaurResponseModel();
 
-            // Guard clause: reject an empty request up front with a 400
-            // (Bad Request) so the rest of the method can assume the model exists.
+            // Guard clause: if no data was sent, stop immediately with a 400 (Bad Request)
+            // so the rest of the method can assume the model exists.
             if (dinosaurModel == null)
             {
                 response.Status = false;
@@ -214,8 +222,9 @@ namespace Calculator_API.Controllers
 
             try
             {
-                // Ask the DAL to save the dinosaur. The DAL does its own validation
-                // (Stats/MutatedStats required) and reports the outcome via StatusCode.
+                // Ask the DAL to save the dinosaur. The DAL validates the input
+                // (Stats and MutatedStats are required) and reports the result
+                // through its StatusCode.
                 var dino = await repository.AddDinosaurToBreedingLine(dinosaurModel).ConfigureAwait(true);
 
                 if (dino.StatusCode == 200)
@@ -250,8 +259,8 @@ namespace Calculator_API.Controllers
                 }
                 else
                 {
-                    // The DAL reported a failure. Pass its status code and message
-                    // straight through so a 400 stays a 400 instead of becoming a generic 500.
+                    // The DAL reported a failure. Pass its status code and message through
+                    // so a 400 stays a 400 instead of turning into a generic 500.
                     response.Status = false;
                     response.StatusCode = dino.StatusCode;
                     response.Message = dino.Message;
@@ -272,10 +281,5 @@ namespace Calculator_API.Controllers
         }
 
         #endregion
-
-        // TODO (later): Right now every response is HTTP 200 and the real status lives in
-        // response.StatusCode. To return true HTTP codes, change the return types to
-        // ActionResult<T> and use Ok(...), NotFound(...), BadRequest(...).
-        // Tests would then assert on the ActionResult instead of the response body.
     }
 }

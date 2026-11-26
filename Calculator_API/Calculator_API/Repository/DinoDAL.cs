@@ -41,26 +41,62 @@ namespace Calculator_API.Repository
         #region Get all Dinosaurs in a single BreedingLine by ID
         public List<Dinosaur> GetDinosaursByBreedingLine(int breedingLineId)
         {
+            List<Dinosaur> dinosaurList = new List<Dinosaur>();
+
             try
             {
+                // Query the database to get all of the dinos in dinosaur table that have this BreedingLineId
                 var dinosaurs = context.Dinosaurs
-                    .AsNoTracking()
                     .Include(d => d.BreedingLine)
                     .Include(d => d.Stats)
                     .Include(d => d.MutatedStats)
                     .Include(d => d.Father)
                     .Include(d => d.Mother)
                     .Where(d => d.BreedingLineId == breedingLineId)
-                    .OrderBy(d => d.DinosaurId)
                     .ToList();
 
-                return dinosaurs.Count == 0 ? null : dinosaurs;
+                // Check that we didn't get a null
+                if (dinosaurs != null)
+                {
+                    foreach (var dinosaur in dinosaurs)
+                    {
+                        Dinosaur currentDinosaur = new Dinosaur()
+                        {
+                            DinosaurId = dinosaur.DinosaurId,
+                            BreedingLineId = dinosaur.BreedingLineId,
+                            BreedingLine = dinosaur.BreedingLine,
+                            DinosaurName = dinosaur.DinosaurName,
+                            Species = dinosaur.Species,
+                            Gender = dinosaur.Gender,
+                            Generation = dinosaur.Generation,
+                            StatsId = dinosaur.StatsId,
+                            Stats = dinosaur.Stats,
+                            MutatedStatsId = dinosaur.MutatedStatsId,
+                            MutatedStats = dinosaur.MutatedStats,
+                            Mutated = dinosaur.Mutated,
+                            AquaticDino = dinosaur.AquaticDino,
+                            FatherId = dinosaur.FatherId,
+                            Father = dinosaur.Father,
+                            MotherId = dinosaur.MotherId,
+                            Mother = dinosaur.Mother
+                        };
+
+                        dinosaurList.Add(currentDinosaur);
+                    }
+                }
+
+                if (dinosaurList.Count == 0)
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"GetDinosaursByBreedingLine -- {ex.Message}");
+                Console.WriteLine($"GetAllDinosaursByBreedingLineId -- {ex.Message}");
                 throw;
             }
+
+            return dinosaurList;
         }
         #endregion
 
