@@ -54,6 +54,8 @@ namespace Calculator_API
             app.MapControllers();
 
             app.Run();
+
+            Console.WriteLine(Path.GetFullPath("Data/dinosaur_database.db"));
         }
     }
 }
